@@ -2,6 +2,9 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&display=swap" rel="stylesheet">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gerador de Certificado de Garantia — Guedes Relógios</title>
 <style>
@@ -47,7 +50,7 @@ img#prev{width:100%;height:auto;display:block;border-radius:8px;border:1px solid
       <span id="msg" class="hint"></span>
     </div>
   </div>
-  <div class="card wrap"><canvas id="cv" width="2000" height="1414"></canvas>
+  <div class="card wrap"><canvas id="cv" width="4000" height="2828"></canvas>
     <img id="prev" alt="Certificado de garantia">
     <p class="hint">No celular: toque e segure na imagem e escolha “Salvar imagem”, ou use o botão Compartilhar.</p></div>
 </main>
@@ -56,7 +59,7 @@ const IMG_SRC="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB9AAAAWGCAIAAABYEqn
 const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
 const $=id=>document.getElementById(id);
 const base=new Image();
-const GOLD='#a28421',TXT='#ece6d2';
+const GOLD='#a28421',TXT='#15110a';
 // barras douradas do modelo original: [x, y, largura, altura, campo]
 const FIELDS=[
   {id:'modelo',x:153,y:571,w:911,h:35},
@@ -65,15 +68,16 @@ const FIELDS=[
 ];
 function fmtDate(v){if(!v)return'';const [y,m,d]=v.split('-');return `${d}/${m}/${y}`}
 function draw(){
+  ctx.setTransform(2,0,0,2,0,0);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
   ctx.drawImage(base,0,0);
   for(const f of FIELDS){
     ctx.fillStyle=GOLD;ctx.fillRect(f.x,f.y,f.w,f.h);
     let t=$(f.id).value.trim();if(f.fmt)t=fmtDate($(f.id).value);
     if(!t)continue;
-    let size=26;
+    let size=28;
     ctx.fillStyle=TXT;ctx.textBaseline='middle';
     const max=f.w-jm(); 
-    do{ctx.font=`${size}px "Courier New",Courier,monospace`;ctx.letterSpacing='3px';size--;}
+    do{ctx.font=`800 ${size}px Cinzel,Georgia,'Times New Roman',serif`;ctx.letterSpacing='2px';size--;}
     while(ctx.measureText(t).width>f.w-2*8-4&&size>10);
     ctx.fillText(t,f.x+8,f.y+f.h/2+1);
   }
@@ -81,9 +85,9 @@ function draw(){
 }
 function jm(){return 0}
 let tm=null,url=null;
-function schedule(){clearTimeout(tm);tm=setTimeout(()=>{cv.toBlob(b=>{if(!b)return;if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(b);$('prev').src=url;},'image/png');},120);}
+function schedule(){clearTimeout(tm);tm=setTimeout(()=>{cv.toBlob(b=>{if(!b)return;if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(b);$('prev').src=url;},'image/png');},200);}
 function hoje(){const d=new Date(),p=n=>String(n).padStart(2,'0');$('data').value=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;}
-base.onload=()=>{hoje();draw();};
+base.onload=()=>{hoje();draw();try{Promise.all([document.fonts.load('800 28px Cinzel'),document.fonts.ready]).then(draw);}catch(e){}};
 base.src=IMG_SRC;
 ['modelo','cliente','data'].forEach(i=>$(i).addEventListener('input',draw));
 $('hoje').onclick=()=>{hoje();draw();};
